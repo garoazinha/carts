@@ -5,6 +5,6 @@
 # @version 0.1
 
 bash:
-	@docker compose run test bash
+	@docker compose run -p 3000:3000 test bash
 
 # end
