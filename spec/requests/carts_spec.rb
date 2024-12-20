@@ -4,15 +4,16 @@ require 'rails_helper'
 require 'pry'
 
 RSpec.describe '/carts', type: :request do
-  pending "TODO: Escreva os testes de comportamento do controller de carrinho necessários para cobrir a sua implmentação #{__FILE__}"
+  # pending "TODO: Escreva os testes de comportamento do controller de carrinho necessários para cobrir a sua implmentação #{__FILE__}"
 
   let(:product) { create(:product, name: 'Product test', price: 10.0) }
+  let(:product2) { create(:product, name: 'Product fake', price: 50.0) }
 
   before do
     allow(Cart).to receive(:find).and_return(cart) if defined?(cart)
   end
 
-  describe 'delete' do
+  describe 'delete /delete_item' do
     subject { delete "/cart/#{product.id}" }
 
     let(:cart) { Cart.create }
@@ -23,7 +24,6 @@ RSpec.describe '/carts', type: :request do
         total_price: 0.0
       }
     end
-    let(:product2) { create(:product, name: 'Product fake', price: 50.0) }
 
     context 'only one product in cart' do
       before { CartItem.create!(product: product, quantity: 2, cart: cart) }
@@ -73,7 +73,7 @@ RSpec.describe '/carts', type: :request do
     end
   end
 
-  describe 'POST' do
+  describe 'create' do
     context 'there is cart' do
       subject { post '/cart', params: { product_id: product.id, quantity: 2 }, as: :json }
 
@@ -130,9 +130,31 @@ RSpec.describe '/carts', type: :request do
         expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
       end
     end
+
+    context 'invalid quantity' do
+      subject { post '/cart', params: { product_id: product.id, quantity: -12 }, as: :json }
+
+      let(:cart) { Cart.create }
+
+      it 'fails to add' do
+        subject
+        expect(response).to have_http_status :unprocessable_entity
+      end
+    end
+
+    context 'product does not exist' do
+      subject { post '/cart', params: { product_id: 1111111333, quantity: 2 }, as: :json }
+
+      let(:cart) { Cart.create }
+
+      it 'fails to add' do
+        subject
+        expect(response).to have_http_status :unprocessable_entity
+      end
+    end
   end
 
-  describe 'Show' do
+  describe 'show' do
     context 'there is cart' do
       subject { get '/cart' }
 
@@ -180,6 +202,16 @@ RSpec.describe '/carts', type: :request do
 
       it 'updates the quantity of the existing item in the cart' do
         expect { subject }.to change { cart_item.reload.quantity }.by(2)
+      end
+    end
+
+    context 'when product is not in cart' do
+      subject do
+        post '/cart/add_items', params: { product_id: product2.id, quantity: 1 }, as: :json
+      end
+
+      it 'updates the amount of products in cart' do
+        expect { subject }.to change { cart.reload.products.size }.by(1)
       end
     end
   end

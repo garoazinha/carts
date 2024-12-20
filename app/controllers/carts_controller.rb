@@ -2,7 +2,8 @@
 
 require 'pry'
 class CartsController < ApplicationController
-  before_action :set_cart
+  before_action :set_cart, only: [:create]
+  before_action :find_cart, only: [:add_item, :show, :delete_item]
   before_action :set_product, only: %i[create add_item delete_item]
 
   def show
@@ -14,42 +15,42 @@ class CartsController < ApplicationController
   end
 
   def create
-    CartItem.create(product: @product, quantity: quantity_to_add, cart: @cart)
-
-    if @cart.save
+    @cart_item = @cart.add_item(@product, quantity_to_add)
+    if @cart_item.save
       render json: @cart
     else
-      render json: @cart.errors, status: :unprocessable_entity
+      render json: @cart_item.errors, status: :unprocessable_entity
     end
   end
 
   def add_item
-    cart_item = CartItem.find_or_initialize_by(cart: @cart, product: @product)
-
-    cart_item.add_item(quantity_to_add)
-
-    render json: @cart.reload
+    @cart_item = @cart.add_item(@product, quantity_to_add)
+    if @cart_item.save
+      render json: @cart
+    else
+      render json: @cart_item.errors, status: :unprocessable_entity
+    end
   end
 
   def delete_item
-    cart_item = CartItem.find_by(cart: @cart, product: @product)
-
-    if cart_item
-      cart_item.destroy!
-
+    if @cart.remove_item(@product)
       render json: @cart.reload
     else
-      render json: @cart.errors, status: :unprocessable_entity
+      render json: 'product_not_found', status: :unprocessable_entity
     end
   end
 
   private
 
   def set_cart
+    @cart = find_cart || create_cart
+  end
+
+  def find_cart
     id = session[:current_cart_id]
     @cart = Cart.find(id)
   rescue ActiveRecord::RecordNotFound
-    @cart = create_cart
+    nil
   end
 
   def create_cart
@@ -60,6 +61,8 @@ class CartsController < ApplicationController
 
   def set_product
     @product = Product.find(product_id)
+  rescue ActiveRecord::RecordNotFound
+    nil
   end
 
   def product_id
