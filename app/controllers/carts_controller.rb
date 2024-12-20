@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry'
 class CartsController < ApplicationController
   before_action :set_cart, only: [:create]
   before_action :find_cart, only: [:add_item, :show, :delete_item]

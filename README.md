@@ -1,5 +1,9 @@
 # Desafio técnico e-commerce
 
+Para iniciar um shell dentro de um container de maneira simples
+
+``` make bash ```
+
 ## Nossas expectativas
 
 A equipe de engenharia da RD Station tem alguns princípios nos quais baseamos nosso trabalho diário. Um deles é: projete seu código para ser mais fácil de entender, não mais fácil de escrever.

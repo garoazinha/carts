@@ -1,6 +1,5 @@
 # frozen_string_literal: true
 
-require 'pry'
 class CartItemSerializer < ActiveModel::Serializer
   belongs_to :product
   attribute :name
