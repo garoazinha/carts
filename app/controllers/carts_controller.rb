@@ -36,7 +36,7 @@ class CartsController < ApplicationController
     if @cart.remove_item(@product)
       render json: @cart.reload
     else
-      render json: 'product_not_found', status: :unprocessable_entity
+      render json: { errors: :product_not_in_cart }, status: :unprocessable_entity
     end
   end
 

@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'rails_helper'
-require 'pry'
 
 RSpec.describe '/carts', type: :request do
   # pending "TODO: Escreva os testes de comportamento do controller de carrinho necessários para cobrir a sua implmentação #{__FILE__}"
@@ -13,7 +12,7 @@ RSpec.describe '/carts', type: :request do
     allow(Cart).to receive(:find).and_return(cart) if defined?(cart)
   end
 
-  describe 'delete /delete_item' do
+  describe 'DELETE /:product_id' do
     subject { delete "/cart/#{product.id}" }
 
     let(:cart) { Cart.create }
@@ -30,6 +29,7 @@ RSpec.describe '/carts', type: :request do
 
       it 'returns list' do
         subject
+
         expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
       end
     end
@@ -68,6 +68,7 @@ RSpec.describe '/carts', type: :request do
 
       it 'returns not found' do
         subject
+
         expect(response).to have_http_status(:unprocessable_entity)
       end
     end
@@ -96,11 +97,13 @@ RSpec.describe '/carts', type: :request do
 
       it 'returns success' do
         subject
+
         expect(response).to be_successful
       end
 
       it 'returns payload' do
         subject
+
         expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
       end
     end
@@ -126,6 +129,7 @@ RSpec.describe '/carts', type: :request do
 
       it 'returns success' do
         subject
+
         expect(response).to be_successful
         expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
       end
@@ -138,6 +142,7 @@ RSpec.describe '/carts', type: :request do
 
       it 'fails to add' do
         subject
+
         expect(response).to have_http_status :unprocessable_entity
       end
     end
@@ -149,6 +154,7 @@ RSpec.describe '/carts', type: :request do
 
       it 'fails to add' do
         subject
+
         expect(response).to have_http_status :unprocessable_entity
       end
     end
@@ -179,6 +185,7 @@ RSpec.describe '/carts', type: :request do
 
       it 'returns success' do
         subject
+
         expect(response).to be_successful
       end
 
