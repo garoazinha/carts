@@ -6,7 +6,6 @@ class Cart < ApplicationRecord
 
   has_many :cart_items
   has_many :products, through: :cart_items
-  validates_associated :cart_items
 
   enum :status, {
     active: 'active', abandoned: 'abandoned'

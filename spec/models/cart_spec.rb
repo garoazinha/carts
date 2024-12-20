@@ -28,4 +28,25 @@ RSpec.describe Cart, type: :model do
       expect { shopping_cart.remove_if_abandoned }.to change { Cart.count }.by(-1)
     end
   end
+
+  describe 'add_item' do
+    let(:shopping_cart) { create(:shopping_cart) }
+    let(:product) { create(:product, price: 10.0) }
+
+    it 'adds product to cart' do
+      expect { shopping_cart.add_item(product, 2) }.to change { shopping_cart.products.count }.by(1)
+    end
+
+    it 'updates total price' do
+      expect { shopping_cart.add_item(product, 2) }.to change { shopping_cart.total_price }.to(20.0)
+    end
+
+    context 'product already in cart' do
+      before { shopping_cart.add_item(product, 1) }
+
+      it 'updates total price' do
+        expect { shopping_cart.add_item(product, 2) }.to change { shopping_cart.total_price }.to(30.0)
+      end
+    end
+  end
 end

@@ -7,4 +7,5 @@
 bash:
 	@docker compose run -p 3000:3000 --name app test bash
 
-# end
+start:
+	@docker compose up web sidekiq

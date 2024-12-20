@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 class CartItem < ApplicationRecord
-  belongs_to :cart, autosave: true
+  belongs_to :cart
   belongs_to :product
 
   after_commit :update_cart
@@ -18,6 +18,7 @@ class CartItem < ApplicationRecord
 
   def add_item(quantity_to_add)
     update(quantity: self.quantity += quantity_to_add)
+
     self
   end
 
