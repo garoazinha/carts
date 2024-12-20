@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CartItem < ApplicationRecord
   belongs_to :cart
   belongs_to :product
@@ -9,9 +11,14 @@ class CartItem < ApplicationRecord
     format_price * quantity
   end
 
+  def add_item(quantity_to_add)
+    self.quantity += quantity_to_add
+    update(quantity:)
+  end
+
   def update_cart
     require 'pry'
 
-    self.cart.reload.sum_total_price
+    cart.reload.sum_total_price
   end
 end

@@ -1,0 +1,18 @@
+meta {
+  name: Mudar quantidade
+  type: http
+  seq: 4
+}
+
+post {
+  url: localhost:3000/cart/add_item
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "product_id": 3,
+    "quantity": 1
+  }
+}

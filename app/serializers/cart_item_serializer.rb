@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'pry'
 class CartItemSerializer < ActiveModel::Serializer
   belongs_to :product
@@ -7,4 +9,3 @@ class CartItemSerializer < ActiveModel::Serializer
   attribute :quantity
   attribute :product_id, key: :id
 end
-    

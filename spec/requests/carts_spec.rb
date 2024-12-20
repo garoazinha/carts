@@ -1,26 +1,32 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 require 'pry'
 
-RSpec.describe "/carts", type: :request do
+RSpec.describe '/carts', type: :request do
   pending "TODO: Escreva os testes de comportamento do controller de carrinho necessários para cobrir a sua implmentação #{__FILE__}"
 
+  let(:product) { create(:product, name: 'Product test', price: 10.0) }
+
+  before do
+    allow(Cart).to receive(:find).and_return(cart) if defined?(cart)
+  end
+
   describe 'delete' do
-    let(:cart) { Cart.create }
-    let(:product) { Product.create(name: 'Product test', price: 10.0) }
-    let(:product_2) { Product.create(name: 'Product fake', price: 50.0) }
-    
     subject { delete "/cart/#{product.id}" }
 
-    let(:expected_response) {
+    let(:cart) { Cart.create }
+    let(:expected_response) do
       {
-        id: Cart.last.id,
+        id: cart.id,
         products: [],
         total_price: 0.0
       }
-    }
+    end
+    let(:product2) { create(:product, name: 'Product fake', price: 50.0) }
 
     context 'only one product in cart' do
-      before { CartItem.create!(product: product, quantity: 2, cart: cart ) }
+      before { CartItem.create!(product: product, quantity: 2, cart: cart) }
 
       it 'returns list' do
         subject
@@ -30,25 +36,25 @@ RSpec.describe "/carts", type: :request do
 
     context 'two products' do
       before do
-        CartItem.create!(product: product_2, cart: cart, quantity: 1)
-        CartItem.create!(product: product, quantity: 2, cart: cart.reload )
+        CartItem.create!(product: product2, cart: cart, quantity: 1)
+        CartItem.create!(product: product, quantity: 2, cart: cart.reload)
       end
 
-      let(:expected_response) {
+      let(:expected_response) do
         {
           id: Cart.last.id,
           products: [
             {
-              id: product_2.id,
-              name: product_2.name,
+              id: product2.id,
+              name: product2.name,
               quantity: 1,
               unit_price: 50.0,
-              total_price: 50.0,
-            },
+              total_price: 50.0
+            }
           ],
           total_price: 50.0
         }
-      }
+      end
 
       it 'returns list' do
         subject
@@ -58,39 +64,35 @@ RSpec.describe "/carts", type: :request do
     end
 
     context 'product not in cart' do
-
-      before { CartItem.create!(product: product_2, quantity: 2, cart: cart ) }
+      before { CartItem.create!(product: product2, quantity: 2, cart: cart) }
 
       it 'returns not found' do
         subject
-        expect(response).to have_http_status(:not_found)
+        expect(response).to have_http_status(:unprocessable_entity)
       end
     end
   end
-  
-  describe "POST" do
-    context 'there is cart' do
-      let(:cart) { Cart.create }
-      # TODO change to factory
-      let(:product) { Product.create(name: 'Product test', price: 10.0) }
 
+  describe 'POST' do
+    context 'there is cart' do
       subject { post '/cart', params: { product_id: product.id, quantity: 2 }, as: :json }
 
-      let(:expected_response) {
+      let(:cart) { Cart.create }
+      let(:expected_response) do
         {
-          id: cart.id, 
+          id: cart.id,
           products: [
             {
               id: product.id,
               name: product.name,
               quantity: 2,
               unit_price: 10.0,
-              total_price: 20.0,
-            },
+              total_price: 20.0
+            }
           ],
           total_price: 20.0
         }
-      }
+      end
 
       it 'returns success' do
         subject
@@ -104,25 +106,23 @@ RSpec.describe "/carts", type: :request do
     end
 
     context 'there is no cart' do
-      let(:product) { Product.create(name: 'Product test', price: 10.0) }
-
       subject { post '/cart', params: { product_id: product.id, quantity: 2 }, as: :json }
 
-      let(:expected_response) {
+      let(:expected_response) do
         {
-          id: Cart.last.id, 
+          id: Cart.last.id,
           products: [
             {
               id: product.id,
               name: product.name,
               quantity: 2,
               unit_price: 10.0,
-              total_price: 20.0,
-            },
+              total_price: 20.0
+            }
           ],
           total_price: 20.0
         }
-      }
+      end
 
       it 'returns success' do
         subject
@@ -132,31 +132,28 @@ RSpec.describe "/carts", type: :request do
     end
   end
 
-  describe "Show" do
+  describe 'Show' do
     context 'there is cart' do
-      let(:cart) { Cart.create }
-      # TODO change to factory
-      let(:product) { Product.create(name: 'Product test', price: 10.0) }
-      let(:product_2) { Product.create(name: 'Product fake', price: 20.0) }
-      before { CartItem.create!(product: product, quantity: 2, cart: cart ) }
-
       subject { get '/cart' }
 
-      let(:expected_response) {
+      let(:cart) { Cart.create }
+      let(:expected_response) do
         {
-          id: cart.id, 
+          id: cart.id,
           products: [
             {
               id: product.id,
               name: product.name,
               quantity: 2,
               unit_price: 10.0,
-              total_price: 20.0,
-            },
+              total_price: 20.0
+            }
           ],
           total_price: 20.0
         }
-      }
+      end
+
+      before { CartItem.create!(product: product, quantity: 2, cart: cart) }
 
       it 'returns success' do
         subject
@@ -169,15 +166,10 @@ RSpec.describe "/carts", type: :request do
       end
     end
   end
-  
-  before do
-    post '/cart'
-    allow(Cart).to receive(:find).and_return(cart) if defined?(cart)
-  end
 
-  describe "POST /add_items" do
+  describe 'POST /add_items' do
     let(:cart) { Cart.create }
-    let(:product) { Product.create(name: "Test Product", price: 10.0) }
+    let(:product) { create(:product, name: 'Product test', price: 10.0) }
     let!(:cart_item) { CartItem.create(cart: cart, product: product, quantity: 1) }
 
     context 'when the product already is in the cart' do

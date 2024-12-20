@@ -1,9 +1,4 @@
-require 'pry'
-class ApplicationController < ActionController::API
-    include ActionController::Cookies
-    before_action :check_session
+# frozen_string_literal: true
 
-    def check_session
-        
-    end
+class ApplicationController < ActionController::API
 end

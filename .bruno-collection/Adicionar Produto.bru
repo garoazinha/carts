@@ -1,0 +1,18 @@
+meta {
+  name: Adicionar Produto
+  type: http
+  seq: 3
+}
+
+post {
+  url: localhost:3000/cart
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "product_id": 3,
+    "quantity": 1
+  }
+}
