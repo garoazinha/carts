@@ -32,7 +32,8 @@ services:
         command: bundle exec sidekiq
         depends_on:
             - db
-            - redis 
+            - redis
+            - web
         environment:
             - DATABASE_URL=postgresql://postgres:password@db:5432/store_development
             - REDIS_URL=redis://redis:6379/0

@@ -2,7 +2,15 @@
 
 Para iniciar um shell dentro de um container de maneira simples
 
-``` make bash ```
+```bash
+make bash
+```
+
+Para subir as aplicações
+
+```bash
+make start
+```
 
 ## Nossas expectativas
 

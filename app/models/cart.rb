@@ -12,7 +12,7 @@ class Cart < ApplicationRecord
   }
 
   def sum_total_price
-    sum_of_cart_items = cart_items.map(&:total_price).sum.to_d
+    sum_of_cart_items = cart_items.sum(&:total_price)
 
     update(total_price: sum_of_cart_items, last_interaction_at: Time.now)
   end
@@ -41,9 +41,7 @@ class Cart < ApplicationRecord
   private
 
   def fetch_cart_item(product)
-    return cart_items.build if product.blank?
-
-    cart_items.find_by(product_id: product.id) || cart_items.create(product: product)
+    cart_items.find_or_initialize_by(product_id: product&.id)
   end
 
   def set_total_price

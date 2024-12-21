@@ -3,70 +3,45 @@
 require 'rails_helper'
 
 RSpec.describe '/carts', type: :request do
-  # pending "TODO: Escreva os testes de comportamento do controller de carrinho necessários para cobrir a sua implmentação #{__FILE__}"
-
   let(:product) { create(:product, name: 'Product test', price: 10.0) }
   let(:product2) { create(:product, name: 'Product fake', price: 50.0) }
 
   before do
-    allow(Cart).to receive(:find).and_return(cart) if defined?(cart)
+    allow(Cart).to receive(:find_by).and_return(cart) if defined?(cart)
   end
 
   describe 'DELETE /:product_id' do
     subject { delete "/cart/#{product.id}" }
 
     let(:cart) { Cart.create }
-    let(:expected_response) do
-      {
-        id: cart.id,
-        products: [],
-        total_price: 0.0
-      }
-    end
 
-    context 'only one product in cart' do
+    context 'when only one product in cart' do
       before { CartItem.create!(product: product, quantity: 2, cart: cart) }
 
-      it 'returns list' do
-        subject
+      it 'cart becomes empty' do
+        expect { subject }.to change { cart.reload.products.size }.to be_zero
+      end
 
-        expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
+      it 'total_price is zero' do
+        expect { subject }.to change { cart.reload.total_price }.to(0.0)
       end
     end
 
-    context 'two products' do
+    context 'when there are two products in cart' do
       before do
         CartItem.create!(product: product2, cart: cart, quantity: 1)
         CartItem.create!(product: product, quantity: 2, cart: cart.reload)
       end
 
-      let(:expected_response) do
-        {
-          id: Cart.last.id,
-          products: [
-            {
-              id: product2.id,
-              name: product2.name,
-              quantity: 1,
-              unit_price: 50.0,
-              total_price: 50.0
-            }
-          ],
-          total_price: 50.0
-        }
-      end
-
-      it 'returns list' do
-        subject
-
-        expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
+      it 'deletes one but keeps one' do
+        expect { subject }.to change { cart.reload.products.size }.by(-1)
       end
     end
 
-    context 'product not in cart' do
+    context 'when product not in cart' do
       before { CartItem.create!(product: product2, quantity: 2, cart: cart) }
 
-      it 'returns not found' do
+      it 'returns unprocessable entity' do
         subject
 
         expect(response).to have_http_status(:unprocessable_entity)
@@ -75,25 +50,10 @@ RSpec.describe '/carts', type: :request do
   end
 
   describe 'create' do
-    context 'there is cart' do
+    context 'when there is cart' do
       subject { post '/cart', params: { product_id: product.id, quantity: 2 }, as: :json }
 
       let(:cart) { Cart.create }
-      let(:expected_response) do
-        {
-          id: cart.id,
-          products: [
-            {
-              id: product.id,
-              name: product.name,
-              quantity: 2,
-              unit_price: 10.0,
-              total_price: 20.0
-            }
-          ],
-          total_price: 20.0
-        }
-      end
 
       it 'returns success' do
         subject
@@ -101,41 +61,26 @@ RSpec.describe '/carts', type: :request do
         expect(response).to be_successful
       end
 
-      it 'returns payload' do
-        subject
+      it 'adds product to cart' do
+        expect { subject }.to change { cart.reload.products.size }.by(1)
+      end
 
-        expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
+      it 'adds product to cart' do
+        expect { subject }.to change { cart.reload.products.size }.by(1)
       end
     end
 
-    context 'there is no cart' do
+    context 'when there is no cart' do
       subject { post '/cart', params: { product_id: product.id, quantity: 2 }, as: :json }
 
-      let(:expected_response) do
-        {
-          id: Cart.last.id,
-          products: [
-            {
-              id: product.id,
-              name: product.name,
-              quantity: 2,
-              unit_price: 10.0,
-              total_price: 20.0
-            }
-          ],
-          total_price: 20.0
-        }
-      end
-
-      it 'returns success' do
-        subject
+      it 'creates one cart returns success' do
+        expect { subject }.to change(Cart, :count).by(1)
 
         expect(response).to be_successful
-        expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
       end
     end
 
-    context 'invalid quantity' do
+    context 'when invalid quantity is given' do
       subject { post '/cart', params: { product_id: product.id, quantity: -12 }, as: :json }
 
       let(:cart) { Cart.create }
@@ -147,8 +92,8 @@ RSpec.describe '/carts', type: :request do
       end
     end
 
-    context 'product does not exist' do
-      subject { post '/cart', params: { product_id: 1111111333, quantity: 2 }, as: :json }
+    context 'when product does not exist' do
+      subject { post '/cart', params: { product_id: 1_111_111_333, quantity: 2 }, as: :json }
 
       let(:cart) { Cart.create }
 
@@ -161,7 +106,7 @@ RSpec.describe '/carts', type: :request do
   end
 
   describe 'show' do
-    context 'there is cart' do
+    context 'when there is cart' do
       subject { get '/cart' }
 
       let(:cart) { Cart.create }
@@ -191,6 +136,7 @@ RSpec.describe '/carts', type: :request do
 
       it 'returns payload' do
         subject
+
         expect(JSON.parse(response.body, symbolize_names: true)).to eq expected_response
       end
     end

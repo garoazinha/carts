@@ -8,4 +8,4 @@ bash:
 	@docker compose run -p 3000:3000 --name app test bash
 
 start:
-	@docker compose up web sidekiq
+	@docker compose up --build web sidekiq

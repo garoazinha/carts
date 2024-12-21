@@ -15,6 +15,7 @@ class CartsController < ApplicationController
 
   def create
     @cart_item = @cart.add_item(@product, quantity_to_add)
+
     if @cart_item.save
       render json: @cart
     else
@@ -24,6 +25,7 @@ class CartsController < ApplicationController
 
   def add_item
     @cart_item = @cart.add_item(@product, quantity_to_add)
+
     if @cart_item.save
       render json: @cart
     else
@@ -47,9 +49,7 @@ class CartsController < ApplicationController
 
   def find_cart
     id = session[:current_cart_id]
-    @cart = Cart.find(id)
-  rescue ActiveRecord::RecordNotFound
-    nil
+    @cart = Cart.find_by(id:)
   end
 
   def create_cart
@@ -59,9 +59,7 @@ class CartsController < ApplicationController
   end
 
   def set_product
-    @product = Product.find(product_id)
-  rescue ActiveRecord::RecordNotFound
-    nil
+    @product = Product.find_by(id: product_id)
   end
 
   def product_id
