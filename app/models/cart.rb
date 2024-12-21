@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 class Cart < ApplicationRecord
-  validates_numericality_of :total_price, greater_than_or_equal_to: 0
+  validates :total_price, numericality: { greater_than_or_equal_to: 0 }
   before_validation :set_total_price, :set_last_interaction_at
 
-  has_many :cart_items
+  has_many :cart_items, dependent: :destroy
   has_many :products, through: :cart_items
 
   enum :status, {
@@ -14,7 +14,7 @@ class Cart < ApplicationRecord
   def sum_total_price
     sum_of_cart_items = cart_items.sum(&:total_price)
 
-    update(total_price: sum_of_cart_items, last_interaction_at: Time.now)
+    update(total_price: sum_of_cart_items, last_interaction_at: Time.zone.now)
   end
 
   def add_item(product, quantity)
@@ -49,6 +49,6 @@ class Cart < ApplicationRecord
   end
 
   def set_last_interaction_at
-    self.last_interaction_at = Time.now if last_interaction_at.blank?
+    self.last_interaction_at = Time.zone.now if last_interaction_at.blank?
   end
 end

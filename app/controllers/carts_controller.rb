@@ -2,7 +2,7 @@
 
 class CartsController < ApplicationController
   before_action :set_cart, only: [:create]
-  before_action :find_cart, only: [:add_item, :show, :delete_item]
+  before_action :find_cart, only: %i[add_item show delete_item]
   before_action :set_product, only: %i[create add_item delete_item]
 
   def show

@@ -8,7 +8,7 @@ class CartItem < ApplicationRecord
   before_validation :set_default_quantity
 
   validates :product, :cart, presence: true
-  validates_numericality_of :quantity, greater_than_or_equal_to: 0
+  validates :quantity, numericality: { greater_than_or_equal_to: 0 }
 
   delegate :name, :format_price, :price, to: :product
 

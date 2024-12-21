@@ -23,7 +23,6 @@ RSpec.describe CartItem, type: :model do
     end
   end
 
-
   context 'when adding items' do
     let(:shopping_cart) { create(:shopping_cart) }
     let(:product) { create(:product, price: 10.0) }
@@ -38,12 +37,11 @@ RSpec.describe CartItem, type: :model do
   describe 'add_item' do
     let(:shopping_cart) { create(:shopping_cart) }
     let(:product) { create(:product, price: 10.0) }
-    
+
     it 'changes quantity' do
       cart_item = described_class.create(cart: shopping_cart, product:, quantity: 1)
 
       expect { cart_item.add_item(2) }.to change { cart_item.quantity }.by(2)
     end
-
   end
 end
