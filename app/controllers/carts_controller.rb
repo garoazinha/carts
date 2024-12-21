@@ -14,7 +14,8 @@ class CartsController < ApplicationController
   end
 
   def create
-    @cart_item = @cart.add_item(@product, quantity_to_add)
+    ## Changed this implementation to not do anything in case the product is already in cart
+    @cart_item = @cart.add_product(@product, quantity_to_add)
 
     if @cart_item.save
       render json: @cart

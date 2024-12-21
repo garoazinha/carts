@@ -17,6 +17,14 @@ class Cart < ApplicationRecord
     update(total_price: sum_of_cart_items, last_interaction_at: Time.zone.now)
   end
 
+  def add_product(product, quantity)
+    cart_item = fetch_cart_item(product)
+
+    return cart_item if cart_item.persisted?
+
+    cart_item.add_item(quantity)
+  end
+
   def add_item(product, quantity)
     cart_item = fetch_cart_item(product)
 
@@ -41,7 +49,7 @@ class Cart < ApplicationRecord
   private
 
   def fetch_cart_item(product)
-    cart_items.find_or_initialize_by(product_id: product&.id)
+    cart_items.find_or_initialize_by(product: product)
   end
 
   def set_total_price

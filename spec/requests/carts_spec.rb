@@ -61,8 +61,12 @@ RSpec.describe '/carts', type: :request do
         expect(response).to be_successful
       end
 
-      it 'adds product to cart' do
-        expect { subject }.to change { cart.reload.products.size }.by(1)
+      context 'product already in cart' do
+        before { CartItem.create(product: product, quantity: 1, cart: cart) }
+
+        it 'changes nothing' do
+          expect { subject }.not_to change { cart.reload.total_price }
+        end
       end
 
       it 'adds product to cart' do
