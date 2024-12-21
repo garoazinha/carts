@@ -78,6 +78,12 @@ RSpec.describe '/carts', type: :request do
 
         expect(response).to be_successful
       end
+
+      it 'adds cart_id to session' do
+        subject
+
+        expect(session[:current_cart_id]).to eq Cart.last.id
+      end
     end
 
     context 'when invalid quantity is given' do
