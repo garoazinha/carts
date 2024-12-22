@@ -15,22 +15,18 @@ class CartsController < ApplicationController
 
   def create
     ## Changed this implementation to not do anything in case the product is already in cart
-    @cart_item = @cart.add_product(@product, quantity_to_add)
-
-    if @cart_item.save
+    if @cart.add_product(@product, quantity_to_add)
       render json: @cart
     else
-      render json: @cart_item.errors, status: :unprocessable_entity
+      render json: @cart, status: :unprocessable_entity
     end
   end
 
   def add_item
-    @cart_item = @cart.add_item(@product, quantity_to_add)
-
-    if @cart_item.save
+    if @cart.add_item(@product, quantity_to_add)
       render json: @cart
     else
-      render json: @cart_item.errors, status: :unprocessable_entity
+      render json: @cart, status: :unprocessable_entity
     end
   end
 

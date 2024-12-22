@@ -23,12 +23,14 @@ class Cart < ApplicationRecord
     return cart_item if cart_item.persisted?
 
     cart_item.add_item(quantity)
+    save
   end
 
   def add_item(product, quantity)
     cart_item = fetch_cart_item(product)
 
     cart_item.add_item(quantity)
+    save
   end
 
   def remove_item(product)

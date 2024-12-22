@@ -10,7 +10,7 @@ class CartItem < ApplicationRecord
   validates :product, :cart, presence: true
   validates :quantity, numericality: { greater_than_or_equal_to: 0 }
 
-  delegate :name, :format_price, :price, to: :product
+  delegate :name, :format_price, :price, to: :product, allow_nil: true
 
   def total_price
     format_price * quantity
@@ -18,8 +18,6 @@ class CartItem < ApplicationRecord
 
   def add_item(quantity_to_add)
     update(quantity: self.quantity += quantity_to_add)
-
-    self
   end
 
   def update_cart
